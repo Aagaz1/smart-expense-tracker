@@ -10,7 +10,7 @@ public class ExpenseDAO {
 
     public void addExpense(Expense expense) {
 
-        String query = "INSERT INTO expenses (category, amount, date) VALUES (?, ?, ?)";
+        String query = "INSERT INTO expenses (user_id, category_id, amount, description, date) VALUES (?, ?, ?, ?, ?)";
 
         try {
 
@@ -18,9 +18,11 @@ public class ExpenseDAO {
 
             PreparedStatement stmt = conn.prepareStatement(query);
 
-            stmt.setString(1, expense.getCategory());
-            stmt.setDouble(2, expense.getAmount());
-            stmt.setString(3, expense.getDate());
+            stmt.setInt(1, expense.getUserId());
+            stmt.setInt(2, expense.getCategoryId());
+            stmt.setDouble(3, expense.getAmount());
+            stmt.setString(4, expense.getDescription());
+            stmt.setDate(5, new java.sql.Date(expense.getDate().getTime()));
 
             stmt.executeUpdate();
 
@@ -29,7 +31,5 @@ public class ExpenseDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
-
 }
