@@ -14,7 +14,9 @@ public class App {
         expense.setCategoryId(1);
         expense.setAmount(250);
         expense.setDescription("Food");
-        expense.setDate(new Date());
+        java.util.Date utilDate = new java.util.Date();
+        java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+        expense.setDate(sqlDate);
 
         ExpenseDAO dao = new ExpenseDAO();
         dao.addExpense(expense);
