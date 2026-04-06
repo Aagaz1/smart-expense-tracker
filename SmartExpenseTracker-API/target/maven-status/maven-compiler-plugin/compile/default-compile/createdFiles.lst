@@ -1,0 +1,3 @@
+com\expense\dao\ExpenseDAO.class
+com\expense\App.class
+com\expense\database\DatabaseConnection.class
