@@ -7,45 +7,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Date;  
 import com.expense.database.DatabaseConnection;
+import com.expense.dto.CategorySummaryResponse;
 import com.expense.dto.ExpenseResponse;
 import com.expense.model.Expense;
+
 
 public class ExpenseDAO {
 
     public void addExpense(Expense expense) {
+    String query = "INSERT INTO expenses (user_id, category_id, amount, description, date) VALUES (?, ?, ?, ?, ?)";
 
-        String query = "INSERT INTO expenses (user_id, category_id, amount, description, date) VALUES (?, ?, ?, ?, ?)";
+    try {
+        Connection conn = DatabaseConnection.getConnection();
 
-        try {
+        PreparedStatement stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
 
-            Connection conn = DatabaseConnection.getConnection();
+        stmt.setInt(1, expense.getUserId());
+        stmt.setInt(2, expense.getCategoryId());
+        stmt.setDouble(3, expense.getAmount());
+        stmt.setString(4, expense.getDescription());
+        stmt.setDate(5, new java.sql.Date(expense.getDate().getTime()));
 
-            PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.executeUpdate();
 
-            stmt.setInt(1, expense.getUserId());
-            stmt.setInt(2, expense.getCategoryId());
-            stmt.setDouble(3, expense.getAmount());
-            stmt.setString(4, expense.getDescription());
-            stmt.setDate(5, new java.sql.Date(expense.getDate().getTime()));
-            stmt.executeUpdate();
-
-            System.out.println("Expense added successfully!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        ResultSet rs = stmt.getGeneratedKeys();
+        if (rs.next()) {
+            expense.setId(rs.getInt(1));
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
-    public List<Expense> getExpensesByUser(int userId) {
+}
+public List<Expense> getExpensesByUser(int userId) {
 
     List<Expense> expenses = new ArrayList<>();
 
     try {
         Connection conn = DatabaseConnection.getConnection();
 
-        String sql = "SELECT e.id, e.user_id, c.name AS category, e.amount, e.description, e.date "
-                   + "FROM expenses e "
-                   + "JOIN categories c ON e.category_id = c.id "
-                   + "WHERE e.user_id = ?";
+        String sql =
+            "SELECT e.id, e.user_id, c.name AS category, e.amount, e.description, e.date " +
+            "FROM expenses e " +
+            "JOIN categories c ON e.category_id = c.id " +
+            "WHERE e.user_id = ?";
 
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setInt(1, userId);
@@ -58,18 +63,17 @@ public class ExpenseDAO {
 
             exp.setId(rs.getInt("id"));
             exp.setUserId(rs.getInt("user_id"));
-            exp.setCategoryId(0); // optional
             exp.setAmount(rs.getDouble("amount"));
             exp.setDescription(rs.getString("description"));
             exp.setDate(rs.getDate("date"));
 
-            // 👇 ADD THIS FIELD (important)
+            // IMPORTANT
             exp.setCategory(rs.getString("category"));
 
             expenses.add(exp);
         }
 
-    } catch(Exception e) {
+    } catch (Exception e) {
         e.printStackTrace();
     }
 
@@ -119,26 +123,29 @@ public List<ExpenseResponse> getRecentExpenses(int userId) {
     try {
         Connection conn = DatabaseConnection.getConnection();
 
-        String sql =
+        String query =
             "SELECT e.id, c.name AS category, e.amount, e.description, e.date " +
             "FROM expenses e " +
             "JOIN categories c ON e.category_id = c.id " +
             "WHERE e.user_id = ? " +
-            "ORDER BY e.date DESC LIMIT 10";
+            "ORDER BY e.id DESC LIMIT 10";  // 🔥 FIXED (IMPORTANT)
 
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, userId);
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setInt(1, userId);
 
-        ResultSet rs = stmt.executeQuery();
+        ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
-            list.add(new ExpenseResponse(
+
+            ExpenseResponse exp = new ExpenseResponse(
                 rs.getInt("id"),
                 rs.getString("category"),
                 rs.getDouble("amount"),
                 rs.getString("description"),
                 rs.getDate("date")
-            ));
+            );
+
+            list.add(exp);
         }
 
     } catch (Exception e) {
@@ -147,6 +154,8 @@ public List<ExpenseResponse> getRecentExpenses(int userId) {
 
     return list;
 }
+
+    
 public double getTotalExpense(int userId) {
 
     double total = 0;
@@ -201,12 +210,11 @@ public double getMonthlyExpense(int userId) {
 
     return total;
 }
-public List<Object[]> getCategorySummary(int userId) {
+public List<CategorySummaryResponse> getCategorySummary(int userId) {
 
-    List<Object[]> list = new ArrayList<>();
+    List<CategorySummaryResponse> list = new ArrayList<>();
 
     try {
-
         Connection conn = DatabaseConnection.getConnection();
 
         String sql =
@@ -223,12 +231,12 @@ public List<Object[]> getCategorySummary(int userId) {
 
         while (rs.next()) {
 
-            Object[] row = {
+            CategorySummaryResponse obj = new CategorySummaryResponse(
                 rs.getString("name"),
                 rs.getDouble("total")
-            };
+            );
 
-            list.add(row);
+            list.add(obj);
         }
 
     } catch (Exception e) {

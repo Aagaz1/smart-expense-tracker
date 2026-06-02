@@ -1,4 +1,19 @@
-bin/
+# Java
+target/
 *.class
-*.log
+
+# Frontend
+node_modules/
+.next/
+
+# IDE
 .vscode/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+bin/
