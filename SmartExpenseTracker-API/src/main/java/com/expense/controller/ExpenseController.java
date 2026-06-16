@@ -4,6 +4,8 @@ import com.expense.dao.ExpenseDAO;
 import com.expense.dto.CategorySummaryResponse;
 import com.expense.dto.ExpenseResponse;
 import com.expense.model.Expense;
+import com.expense.model.MonthlyExpense;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ public class ExpenseController {
         dao.deleteExpense(id);
         return "Deleted";
     }
+    
 
     // ✅ TOTAL
     @GetMapping("/total/{userId}")
@@ -62,4 +65,22 @@ public List<CategorySummaryResponse> getCategorySummary(@PathVariable int userId
 public List<ExpenseResponse> getRecent(@PathVariable int userId) {
     return dao.getRecentExpenses(userId);
 }
+
+@GetMapping("/monthly-summary/{userId}")
+public List<MonthlyExpense> getMonthlySummary(
+        @PathVariable int userId) {
+
+    return dao.getMonthlySummary(userId);
+}
+@PutMapping
+public String updateExpense(@RequestBody Expense expense) {
+
+    System.out.println("UPDATE ID = " + expense.getId());
+    System.out.println("AMOUNT = " + expense.getAmount());
+
+    dao.updateExpense(expense);
+
+    return "UPDATED";
+}
+
 }

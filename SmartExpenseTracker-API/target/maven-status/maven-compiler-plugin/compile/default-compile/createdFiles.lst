@@ -1,3 +1,15 @@
+com\expense\controller\UserController.class
+com\expense\dto\ExpenseResponse.class
 com\expense\dao\ExpenseDAO.class
 com\expense\App.class
+com\expense\ExpenseApiApplication.class
 com\expense\database\DatabaseConnection.class
+com\expense\service\ExpenseService.class
+com\expense\model\Category.class
+com\expense\controller\ExpenseController.class
+com\expense\controller\TestController.class
+com\expense\model\Expense.class
+com\expense\dao\CategoryDAO.class
+com\expense\model\User.class
+com\expense\dto\CategorySummaryResponse.class
+com\expense\dao\UserDAO.class

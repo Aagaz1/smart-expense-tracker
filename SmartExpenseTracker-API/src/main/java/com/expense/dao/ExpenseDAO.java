@@ -10,6 +10,7 @@ import com.expense.database.DatabaseConnection;
 import com.expense.dto.CategorySummaryResponse;
 import com.expense.dto.ExpenseResponse;
 import com.expense.model.Expense;
+import com.expense.model.MonthlyExpense;
 
 
 public class ExpenseDAO {
@@ -245,6 +246,7 @@ public List<CategorySummaryResponse> getCategorySummary(int userId) {
 
     return list;
 }
+
 public void deleteExpense(int expenseId) {
 
     try {
@@ -261,5 +263,80 @@ public void deleteExpense(int expenseId) {
         e.printStackTrace();
     }
 }
+
+
+
+public void updateExpense(Expense expense) {
+
+    try {
+
+        Connection conn =
+            DatabaseConnection.getConnection();
+
+        String sql =
+            "UPDATE expenses SET category_id=?, amount=?, description=?, date=? WHERE id=?";
+
+        PreparedStatement stmt =
+            conn.prepareStatement(sql);
+
+        stmt.setInt(1, expense.getCategoryId());
+        stmt.setDouble(2, expense.getAmount());
+        stmt.setString(3, expense.getDescription());
+        stmt.setDate(4, expense.getDate());
+        stmt.setInt(5, expense.getId());
+
+        stmt.executeUpdate();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+public List<MonthlyExpense> getMonthlySummary(int userId) {
+
+    List<MonthlyExpense> list = new ArrayList<>();
+
+    try {
+
+        Connection conn =
+            DatabaseConnection.getConnection();
+
+        String sql =
+            "SELECT DATE_FORMAT(date,'%b %Y') AS month, " +
+            "SUM(amount) AS total " +
+            "FROM expenses " +
+            "WHERE user_id=? " +
+            "GROUP BY YEAR(date), MONTH(date) " +
+            "ORDER BY YEAR(date), MONTH(date)";
+
+        PreparedStatement stmt =
+            conn.prepareStatement(sql);
+
+        stmt.setInt(1, userId);
+
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+
+            MonthlyExpense m =
+                new MonthlyExpense();
+
+            m.setMonth(
+                rs.getString("month")
+            );
+
+            m.setTotal(
+                rs.getDouble("total")
+            );
+
+            list.add(m);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
 
 }

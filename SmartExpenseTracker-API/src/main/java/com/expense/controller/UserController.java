@@ -14,11 +14,17 @@ public class UserController {
     private UserDAO dao = new UserDAO();
 
     // ✅ REGISTER
-    @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        dao.register(user);
-        return "User Registered";
+  @PostMapping("/register")
+public String register(@RequestBody User user) {
+
+    if (dao.emailExists(user.getEmail())) {
+        return "EMAIL_EXISTS";
     }
+
+    dao.register(user);
+
+    return "SUCCESS";
+}
 
     // ✅ LOGIN
     @PostMapping("/login")
