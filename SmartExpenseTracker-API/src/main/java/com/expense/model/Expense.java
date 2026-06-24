@@ -1,6 +1,7 @@
 package com.expense.model;
 
-import java.util.Date;
+import java.sql.Date;
+
 
 public class Expense {
 
@@ -10,8 +11,17 @@ public class Expense {
     private double amount;
     private String description;
     private Date date;
+    private String category;
 
-    public Expense() {
+    public Expense() {}
+
+    public Expense(int id, int userId, int categoryId, double amount, String description, Date date) {
+        this.id = id;
+        this.userId = userId;
+        this.categoryId = categoryId;
+        this.amount = amount;
+        this.description = description;
+        this.date = date;
     }
 
     // GETTERS
@@ -39,6 +49,9 @@ public class Expense {
     public Date getDate() {
         return date;
     }
+    public String getCategory() {
+    return category;
+}
 
     // SETTERS
 
@@ -65,4 +78,7 @@ public class Expense {
     public void setDate(Date date) {
         this.date = date;
     }
+   public void setCategory(String category){
+        this.category = category;
+}
 }
